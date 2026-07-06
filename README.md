@@ -17,13 +17,9 @@
 
 ## Project Introduction
 
-Companies publish privacy policies, cookie notices, and GDPR statements on their websites — but those commitments are rarely enforced in a transparent, auditable way. Regulators and users have no shared source of truth, and whistleblowers have little incentive to investigate suspected violations.
+*GenLayer submission — max ~1000 characters.*
 
-**GenComply** solves this by turning web compliance into an on-chain workflow powered by GenLayer's intelligent contracts. A company (or Data Protection Officer) registers a **canonical policy URL**. The contract autonomously **crawls the page** via `gl.nondet.web.render`, then an **LLM extracts a structured compliance fingerprint** via `gl.nondet.exec_prompt`. That fingerprint — along with the company's stated commitments — is stored immutably on Studionet.
-
-Anyone can then **fund a GEN bounty pool** tied to that policy. Independent auditors submit **suspect URLs** where behavior appears to contradict the registered commitments. The contract crawls the suspect page, runs an **AI compliance jury** (again using web access + LLM reasoning), and — if infringement is confirmed above a confidence threshold — **automatically pays the reporter** from the escrow pool.
-
-This is not legal advice or a replacement for regulators. GenComply is an **on-chain rubric**: a transparent, incentive-aligned pipeline where every crawl, AI verdict, and payout is recorded on GenLayer.
+GenComply turns web compliance into an on-chain workflow on GenLayer. Companies register a canonical policy URL (privacy, cookies, GDPR). The contract crawls the page with `gl.nondet.web.render` and uses `gl.nondet.exec_prompt` to build an AI compliance fingerprint stored on Studionet. Stakeholders fund a GEN bounty pool; auditors report suspect URLs. The contract re-crawls evidence, runs an AI jury under the equivalence principle, and pays confirmed reporters from escrow (~20% of pool). Built with Python intelligent contracts and a Next.js dApp (MetaMask, Studionet). Live: [gencomply.vercel.app](https://gencomply.vercel.app) · GitHub: [github.com/hoasine/gencomply](https://github.com/hoasine/gencomply) · Contract: `0xe70D3DE9770ac9Ba08Fc7D5D6fEc532C515879b0`. Not legal advice — a transparent on-chain audit rubric. By Hoa Tran Rom ([@hoasine](https://github.com/hoasine)).
 
 ---
 
