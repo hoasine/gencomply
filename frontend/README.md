@@ -32,4 +32,4 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Social links also appear in the app header and footer.
 
-See [../docs/HUONG_DAN.md](../docs/HUONG_DAN.md) for full guide.
+See [../docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md) for the full guide.

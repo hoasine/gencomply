@@ -99,16 +99,66 @@ class GenComply(gl.Contract):
     def _dedupe_key(self, work_id: str, suspect_url: str) -> str:
         return f"{work_id}::{suspect_url.strip().lower()}"
 
-    def _fetch_urls_text(self, urls_json: str) -> str:
+    def _crawl_url_strict(self, url: str) -> str:
+        """Crawl one URL under strict_eq (no loop-closure nondet helper)."""
+
+        def fetch_page():
+            return gl.nondet.web.render(url, mode="text")
+
+        return gl.eq_principle.strict_eq(fetch_page)
+
+    def _crawl_urls_blob(self, urls_json: str) -> str:
         urls = json.loads(urls_json)
         blob = ""
         for url in urls:
-            try:
-                blob += f"\n--- URL: {url} ---\n"
-                blob += gl.nondet.web.render(url, mode="text")
-            except Exception as e:
-                blob += f"\n[fetch error: {e}]\n"
+            blob += f"\n--- {url} ---\n" + self._crawl_url_strict(url)
         return _truncate(blob)
+
+    def _parse_verdict_json(self, raw: str) -> dict:
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            return {}
+
+    def _validate_register_verdict_shape(self, verdict: dict) -> bool:
+        valid = verdict.get("valid")
+        if valid is not True and valid is not False:
+            return False
+        if valid:
+            if verdict.get("work_type_match") is not True:
+                return False
+            fp = str(verdict.get("fingerprint_summary") or "").strip()
+            if len(fp) < 20:
+                return False
+            try:
+                conf = int(verdict.get("confidence_percent", 0))
+            except (TypeError, ValueError):
+                return False
+            if conf < 1 or conf > 100:
+                return False
+            return True
+        reason = str(verdict.get("reject_reason") or "").strip()
+        return len(reason) >= 10
+
+    def _register_verdict_agrees(self, leader_d: dict, validator_d: dict) -> bool:
+        if leader_d.get("valid") != validator_d.get("valid"):
+            return False
+        if leader_d.get("valid"):
+            if leader_d.get("work_type_match") != validator_d.get("work_type_match"):
+                return False
+            if bool(str(leader_d.get("fingerprint_summary") or "").strip()) != bool(
+                str(validator_d.get("fingerprint_summary") or "").strip()
+            ):
+                return False
+            try:
+                lc = int(leader_d.get("confidence_percent", 0))
+                vc = int(validator_d.get("confidence_percent", 0))
+            except (TypeError, ValueError):
+                return False
+            return abs(lc - vc) <= 15
+        return bool(str(leader_d.get("reject_reason") or "").strip()) == bool(
+            str(validator_d.get("reject_reason") or "").strip()
+        )
 
     def _ai_register_fingerprint(
         self, title: str, work_type: str, canonical_blob: str, license_terms: str
@@ -140,19 +190,21 @@ If spam/404/empty, set valid=false and reject_reason.
         def validator_fn(leader_result) -> bool:
             if not isinstance(leader_result, glvm.Return):
                 return False
-            own = json.loads(leader_fn())
-            leader = leader_result.calldata
-            if not isinstance(leader, str):
+            if not isinstance(leader_result.calldata, str):
                 return False
-            leader_d = json.loads(leader)
-            return (
-                leader_d.get("valid") == own.get("valid")
-                and bool(leader_d.get("fingerprint_summary"))
-                == bool(own.get("fingerprint_summary"))
-            )
+            leader_d = self._parse_verdict_json(leader_result.calldata)
+            if not self._validate_register_verdict_shape(leader_d):
+                return False
+            own_d = self._parse_verdict_json(leader_fn())
+            if not self._validate_register_verdict_shape(own_d):
+                return False
+            return self._register_verdict_agrees(leader_d, own_d)
 
         raw = glvm.run_nondet_unsafe(leader_fn, validator_fn)
-        return json.loads(raw)
+        verdict = json.loads(raw)
+        if not self._validate_register_verdict_shape(verdict):
+            raise gl.vm.UserError("AI registration verdict failed structural validation")
+        return verdict
 
     def _ai_infringement_jury(
         self,
@@ -244,11 +296,8 @@ similarity_score: float 0.0-1.0
 
         canonical_blob = ""
         for url in urls:
-
-            def fetch_one(u=url):
-                return gl.nondet.web.render(u, mode="text")
-
-            canonical_blob += f"\n--- {url} ---\n" + gl.eq_principle.strict_eq(fetch_one)
+            canonical_blob += f"\n--- {url} ---\n" + self._crawl_url_strict(url)
+        canonical_blob = _truncate(canonical_blob)
 
         verdict = self._ai_register_fingerprint(
             title, work_type, canonical_blob, license_terms
@@ -256,6 +305,10 @@ similarity_score: float 0.0-1.0
         if not verdict.get("valid"):
             raise gl.vm.UserError(
                 verdict.get("reject_reason") or "registration rejected by AI"
+            )
+        if not verdict.get("work_type_match"):
+            raise gl.vm.UserError(
+                "crawled page does not match declared policy type (work_type_match=false)"
             )
 
         min_conf = int(min_confidence_percent)
@@ -313,11 +366,7 @@ similarity_score: float 0.0-1.0
 
         canonical_blob = ""
         for url in json.loads(work.canonical_urls_json):
-
-            def fetch_canonical(u=url):
-                return gl.nondet.web.render(u, mode="text")
-
-            canonical_blob += gl.eq_principle.strict_eq(fetch_canonical) + "\n"
+            canonical_blob += self._crawl_url_strict(url) + "\n"
 
         verdict = self._ai_infringement_jury(
             work.fingerprint_summary,

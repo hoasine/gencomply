@@ -180,7 +180,9 @@ Wait for the transaction to reach **FINALIZED** in Studio (5–15 min), then ope
 | GenLayer Studio | https://studio.genlayer.com |
 | GitHub | https://github.com/hoasine/gencomply |
 
-See [docs/VERCEL.md](./docs/VERCEL.md) for Vercel environment variables.
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for Vercel environment variables.
+
+See [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) and [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) for setup and commit guidelines.
 
 ---
 

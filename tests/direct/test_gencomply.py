@@ -79,6 +79,33 @@ class TestRegisterWork:
         ids = contract.list_work_ids()
         assert len(ids) >= 1
 
+    def test_register_rejects_invalid_work_type_match(self, contract, direct_vm):
+        direct_vm.clear_mocks()
+        direct_vm.mock_web(r".*", "Privacy policy: no third-party trackers.")
+        direct_vm.mock_llm(
+            r".*compliance policy registrar.*",
+            json.dumps(
+                {
+                    "valid": True,
+                    "work_type_match": False,
+                    "fingerprint_summary": "x" * 30,
+                    "reject_reason": None,
+                    "confidence_percent": 90,
+                },
+                sort_keys=True,
+            ),
+        )
+        urls = json.dumps(["https://example.com/policy"])
+        from gltest.direct import ContractRollback
+
+        with pytest.raises((ContractRollback, Exception)):
+            contract.register_work(
+                "Bad match",
+                "privacy_policy",
+                urls,
+                "cookie consent required",
+            )
+
 
 class TestBountyAndReport:
     def test_fund_bounty(self, contract, direct_vm, direct_alice):
