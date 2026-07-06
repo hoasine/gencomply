@@ -127,9 +127,9 @@ export function FormTipsPanel({ section }: { section: "submit" | "escrow" | "whi
   const tips =
     section === "submit"
       ? [
-          "Use a real, public policy URL (must return HTTP 200 — not example.com/privacy).",
-          "AI crawls the page and stores a compliance fingerprint.",
-          "Typical wait: 5–12 minutes on Studionet.",
+          "URL must be the policy page itself — not your homepage or product catalog.",
+          "Summarize only what is written on that page; AI rejects mismatched claims.",
+          "Typical wait: 5–12 minutes on Studionet after submit.",
         ]
       : section === "escrow"
         ? [

@@ -20,6 +20,27 @@ export function parseUrlsInput(text: string): string[] {
     .filter((u) => u.length > 0);
 }
 
+/** Shorten on-chain / AI rejection messages for UI toasts. */
+export function formatRegistrationError(message: string): string {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("does not contain") ||
+    lower.includes("unsupported by the crawled") ||
+    lower.includes("work_type_match") ||
+    lower.includes("homepage") ||
+    lower.includes("reject_reason")
+  ) {
+    return "URL is not a policy page, or commitments don't match crawled content. Use the direct privacy/cookie policy link — not your shop homepage.";
+  }
+  if (lower.includes("webpage_load_failed") || lower.includes("404")) {
+    return "Page could not be loaded (404 or blocked). Open the URL in a browser first.";
+  }
+  if (message.length > 280) {
+    return `${message.slice(0, 277)}…`;
+  }
+  return message;
+}
+
 export function statusVariant(
   status: string
 ): "success" | "destructive" | "warning" | "secondary" {
