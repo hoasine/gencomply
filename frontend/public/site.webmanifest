@@ -1,0 +1,16 @@
+{
+  "name": "GenComply",
+  "short_name": "GenComply",
+  "description": "On-chain policy registry and compliance-violation bounties on GenLayer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0d9488",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
