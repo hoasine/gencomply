@@ -24,7 +24,7 @@ const NAV: {
   hint: string;
   icon: typeof Activity;
 }[] = [
-  { id: "dashboard", label: "Live dashboard", hint: "Metrics & pipeline", icon: Activity },
+  { id: "dashboard", label: "Home", hint: "Policies & bounties", icon: Activity },
   { id: "submit-policy", label: "Submit policy", hint: "On-chain fingerprint", icon: Plus },
   { id: "escrow", label: "Escrow GEN", hint: "Fund auditor rewards", icon: Banknote },
   { id: "whistleblow", label: "Whistleblow", hint: "Flag a violation URL", icon: FileWarning },

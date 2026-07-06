@@ -94,3 +94,25 @@ export function formatPolicyOptionLabel(
   const title = work.title?.trim() || work.id;
   return `${title} (${type})${pool}${id}`;
 }
+
+export const WORK_TYPE_GRADIENTS: Record<string, string> = {
+  privacy_policy: "from-teal-500 via-cyan-600 to-blue-700",
+  terms_of_service: "from-violet-500 via-purple-600 to-indigo-700",
+  cookie_policy: "from-amber-400 via-orange-500 to-rose-500",
+  gdpr_notice: "from-emerald-500 via-green-600 to-teal-700",
+  data_processing: "from-slate-600 via-blue-800 to-indigo-900",
+};
+
+export function workTypeGradient(workType: string): string {
+  return WORK_TYPE_GRADIENTS[workType] ?? "from-primary via-cyan-600 to-blue-700";
+}
+
+export function policyDomain(work: WorkView): string {
+  try {
+    const urls = JSON.parse(work.canonical_urls_json) as string[];
+    if (urls[0]) return new URL(urls[0]).hostname.replace(/^www\./, "");
+  } catch {
+    /* ignore */
+  }
+  return "";
+}

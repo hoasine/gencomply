@@ -1,8 +1,17 @@
 "use client";
 
+import { ExternalLink } from "lucide-react";
 import { AccountPanel } from "./AccountPanel";
 import { AuthorLinks } from "./AuthorLinks";
 import { Scale } from "lucide-react";
+import { GENLAYER_LINKS } from "@/lib/genlayer-links";
+import { cn } from "@/lib/utils";
+
+const NAV_LINKS = [
+  { label: "Docs", href: GENLAYER_LINKS.docs },
+  { label: "Studio", href: GENLAYER_LINKS.studio },
+  { label: "SDK", href: GENLAYER_LINKS.sdk },
+] as const;
 
 export function Navbar() {
   return (
@@ -22,9 +31,29 @@ export function Navbar() {
           </div>
         </div>
 
-        <p className="hidden lg:block text-sm text-muted-foreground">
-          Policy registry · Violation bounties · On-chain jury
-        </p>
+        <nav className="hidden md:flex items-center gap-1">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground",
+                "hover:text-primary hover:bg-primary/5 transition-colors"
+              )}
+            >
+              {link.label}
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
+          ))}
+          <a
+            href="#genlayer"
+            className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
+          >
+            About GenLayer
+          </a>
+        </nav>
 
         <div className="flex items-center gap-2 shrink-0">
           <AuthorLinks className="hidden sm:flex" />

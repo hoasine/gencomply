@@ -9,20 +9,26 @@ import {
   FormTipsPanel,
   type ComplySection,
 } from "@/components/gencomply/ComplianceSidebar";
-import { ComplianceDashboard } from "@/components/gencomply/ComplianceDashboard";
+import { HomeHub } from "@/components/gencomply/HomeHub";
 import { RegisterWorkForm } from "@/components/gencomply/RegisterWorkForm";
-import { FundBountyForm } from "@/components/gencomply/FundBountyForm";
+import { PolicyBountyGrid } from "@/components/gencomply/PolicyBountyGrid";
+import { FundBountyInline } from "@/components/gencomply/FundBountyInline";
 import { ReportForm } from "@/components/gencomply/ReportForm";
 import { PolicyVault } from "@/components/gencomply/PolicyVault";
+import { useWorksList } from "@/lib/hooks/useGenComply";
 
 export function GenComplyApp() {
   const [section, setSection] = useState<ComplySection>("dashboard");
-  const [fundWorkId, setFundWorkId] = useState("");
+  const [selectedFundId, setSelectedFundId] = useState("");
   const [reportWorkId, setReportWorkId] = useState("");
+  const { works } = useWorksList();
 
   const goFund = (id: string) => {
-    setFundWorkId(id);
-    setSection("escrow");
+    setSelectedFundId(id);
+    setSection("dashboard");
+    requestAnimationFrame(() => {
+      document.getElementById("policies-bounties")?.scrollIntoView({ behavior: "smooth" });
+    });
   };
 
   const goReport = (id: string) => {
@@ -30,22 +36,30 @@ export function GenComplyApp() {
     setSection("whistleblow");
   };
 
+  const selectedWork = works.find((w) => w.id === selectedFundId) ?? null;
+
   return (
     <div className="flex min-h-[calc(100vh-4rem)] pb-16 lg:pb-0">
       <ComplianceSidebar active={section} onChange={setSection} />
 
       <div className="flex-1 min-w-0 overflow-auto">
-        <div className="p-4 md:p-6 lg:p-8 max-w-5xl">
+        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
           <ContractSetupBanner />
           <WrongNetworkBanner />
           <ContractHealthBanner />
 
           {section === "dashboard" && (
-            <ComplianceDashboard onNavigate={setSection} />
+            <HomeHub
+                selectedFundId={selectedFundId}
+                onSelectFund={setSelectedFundId}
+                onFund={(id) => setSelectedFundId(id)}
+                onReport={goReport}
+              onNavigate={setSection}
+            />
           )}
 
           {section === "submit-policy" && (
-            <div className="animate-fade-in space-y-4">
+            <div className="animate-fade-in space-y-4 max-w-5xl">
               <div>
                 <h1 className="text-2xl font-bold font-display">Submit policy</h1>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -64,26 +78,29 @@ export function GenComplyApp() {
           )}
 
           {section === "escrow" && (
-            <div className="animate-fade-in space-y-4">
+            <div className="animate-fade-in space-y-6 max-w-7xl">
               <div>
                 <h1 className="text-2xl font-bold font-display">Escrow GEN</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Lock tokens into the reward pool for confirmed violation findings.
+                  Pick a policy card and lock tokens into the reward pool.
                 </p>
               </div>
-              <div className="grid lg:grid-cols-5 gap-6 items-start">
-                <div className="lg:col-span-3">
-                  <FundBountyForm defaultWorkId={fundWorkId} />
-                </div>
-                <div className="lg:col-span-2">
-                  <FormTipsPanel section="escrow" />
-                </div>
-              </div>
+              <PolicyBountyGrid
+                selectedId={selectedFundId}
+                onSelect={setSelectedFundId}
+                onFund={setSelectedFundId}
+                onReport={goReport}
+                onNavigate={setSection}
+              />
+              {selectedWork && (
+                <FundBountyInline work={selectedWork} onClear={() => setSelectedFundId("")} />
+              )}
+              <FormTipsPanel section="escrow" />
             </div>
           )}
 
           {section === "whistleblow" && (
-            <div className="animate-fade-in space-y-4">
+            <div className="animate-fade-in space-y-4 max-w-5xl">
               <div>
                 <h1 className="text-2xl font-bold font-display">Whistleblow</h1>
                 <p className="text-sm text-muted-foreground mt-1">
