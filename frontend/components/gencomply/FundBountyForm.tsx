@@ -1,23 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Coins, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useGenComplyActions, useWorkIds } from "@/lib/hooks/useGenComply";
+import { PolicySelect } from "@/components/gencomply/PolicySelect";
+import { useGenComplyActions } from "@/lib/hooks/useGenComply";
 import { success, error as toastError } from "@/lib/utils/toast";
 
 export function FundBountyForm({ defaultWorkId = "" }: { defaultWorkId?: string }) {
   const { fundBounty, pending, isConnected } = useGenComplyActions();
-  const { data: workIds = [] } = useWorkIds();
   const [workId, setWorkId] = useState(defaultWorkId);
   const [amount, setAmount] = useState("1");
+
+  useEffect(() => {
+    if (defaultWorkId) setWorkId(defaultWorkId);
+  }, [defaultWorkId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!workId) {
-      toastError("Select a work_id");
+      toastError("Select a policy");
       return;
     }
     try {
@@ -32,32 +36,13 @@ export function FundBountyForm({ defaultWorkId = "" }: { defaultWorkId?: string 
 
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-white p-6 md:p-8 space-y-6 shadow-sm">
-      <div className="space-y-2">
-        <Label>Policy ID</Label>
-        {workIds.length > 0 ? (
-          <select
-            value={workId}
-            onChange={(e) => setWorkId(e.target.value)}
-            className="w-full h-9 rounded-md border border-input bg-input/30 px-3 text-sm font-mono"
-            disabled={!isConnected || pending === "fund"}
-          >
-            <option value="">— Select —</option>
-            {workIds.map((id) => (
-              <option key={id} value={id}>
-                {id}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <Input
-            value={workId}
-            onChange={(e) => setWorkId(e.target.value)}
-            placeholder="work_1_0x..."
-            className="font-mono text-sm"
-            disabled={!isConnected || pending === "fund"}
-          />
-        )}
-      </div>
+      <PolicySelect
+        label="Policy"
+        value={workId}
+        onChange={setWorkId}
+        showPool
+        disabled={!isConnected || pending === "fund"}
+      />
 
       <div className="space-y-2">
         <Label>Amount (GEN)</Label>
@@ -88,7 +73,7 @@ export function FundBountyForm({ defaultWorkId = "" }: { defaultWorkId?: string 
         ) : (
           <>
             <Coins className="w-4 h-4" />
-            fund_bounty
+            Fund bounty
           </>
         )}
       </Button>

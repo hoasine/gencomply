@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Gavel, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useGenComplyActions, useWorkIds } from "@/lib/hooks/useGenComply";
+import { PolicySelect } from "@/components/gencomply/PolicySelect";
+import { useGenComplyActions } from "@/lib/hooks/useGenComply";
 import { success, error as toastError } from "@/lib/utils/toast";
 
 export function ReportForm({
@@ -16,14 +17,17 @@ export function ReportForm({
   onReported?: () => void;
 }) {
   const { reportInfringement, pending, isConnected } = useGenComplyActions();
-  const { data: workIds = [] } = useWorkIds();
   const [workId, setWorkId] = useState(defaultWorkId);
   const [suspectUrl, setSuspectUrl] = useState("");
+
+  useEffect(() => {
+    if (defaultWorkId) setWorkId(defaultWorkId);
+  }, [defaultWorkId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!workId || !suspectUrl.trim()) {
-      toastError("Enter work_id and suspect URL");
+      toastError("Select a policy and enter a suspect URL");
       return;
     }
     try {
@@ -42,31 +46,13 @@ export function ReportForm({
 
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-white p-6 md:p-8 space-y-6 shadow-sm">
-      <div className="space-y-2">
-        <Label>Policy ID</Label>
-        {workIds.length > 0 ? (
-          <select
-            value={workId}
-            onChange={(e) => setWorkId(e.target.value)}
-            className="w-full h-9 rounded-md border border-input bg-input/30 px-3 text-sm font-mono"
-            disabled={!isConnected || pending === "report"}
-          >
-            <option value="">— Select —</option>
-            {workIds.map((id) => (
-              <option key={id} value={id}>
-                {id}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <Input
-            value={workId}
-            onChange={(e) => setWorkId(e.target.value)}
-            placeholder="work_1_0x..."
-            className="font-mono text-sm"
-          />
-        )}
-      </div>
+      <PolicySelect
+        label="Policy to report against"
+        value={workId}
+        onChange={setWorkId}
+        showPool
+        disabled={!isConnected || pending === "report"}
+      />
 
       <div className="space-y-2">
         <Label>Suspect URL</Label>
@@ -92,7 +78,7 @@ export function ReportForm({
         ) : (
           <>
             <Gavel className="w-4 h-4" />
-            report_infringement
+            Submit report
           </>
         )}
       </Button>

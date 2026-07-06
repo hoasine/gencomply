@@ -65,3 +65,32 @@ export function isRightsHolder(work: WorkView, address: string | null): boolean 
 export function formatSimilarity(score: number): string {
   return `${(score / 100).toFixed(0)}%`;
 }
+
+const WORK_TYPE_LABELS: Record<string, string> = {
+  privacy_policy: "Privacy",
+  terms_of_service: "Terms",
+  cookie_policy: "Cookie",
+  gdpr_notice: "GDPR",
+  data_processing: "Data processing",
+};
+
+export function workTypeLabel(workType: string): string {
+  return WORK_TYPE_LABELS[workType] ?? workType.replace(/_/g, " ");
+}
+
+/** Human-readable label for policy dropdowns (title + type + optional pool + id). */
+export function formatPolicyOptionLabel(
+  work: WorkView,
+  opts?: { showPool?: boolean; showId?: boolean }
+): string {
+  const type = workTypeLabel(work.work_type);
+  const pool =
+    opts?.showPool && work.bounty_pool > 0
+      ? ` · ${weiToGen(work.bounty_pool)} GEN`
+      : opts?.showPool
+        ? " · 0 GEN"
+        : "";
+  const id = opts?.showId !== false ? ` · ${work.id}` : "";
+  const title = work.title?.trim() || work.id;
+  return `${title} (${type})${pool}${id}`;
+}

@@ -51,6 +51,25 @@ export function useWorkIds() {
   });
 }
 
+/** Fetch full work records for all policy IDs (for labeled dropdowns). */
+export function useWorksList() {
+  const client = useClient();
+  const { data: workIds = [], isLoading: idsLoading } = useWorkIds();
+  const worksQuery = useQuery({
+    queryKey: ["gencomply", "worksList", getContractAddress(), workIds.join(",")],
+    queryFn: async () =>
+      Promise.all(workIds.map((id) => client!.getWork(id))),
+    enabled: !!client && workIds.length > 0,
+    refetchInterval: 10000,
+  });
+
+  return {
+    works: worksQuery.data ?? [],
+    isLoading: idsLoading || worksQuery.isLoading,
+    isError: worksQuery.isError,
+  };
+}
+
 export function useWork(workId: string | null) {
   const client = useClient();
   return useQuery({
