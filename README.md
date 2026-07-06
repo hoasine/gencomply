@@ -1,25 +1,29 @@
-# GenComply — AI-Powered On-Chain Web Compliance Monitoring
+# GenComply
 
-> **Submit to GenLayer:** Intelligent contracts that crawl live policy pages, store verifiable compliance fingerprints on-chain, and pay auditors when AI confirms a violation.
+**Decentralized policy registry & AI compliance bounty system on [GenLayer](https://www.genlayer.com/)**
 
-**Live demo:** [gencomply.vercel.app](https://gencomply.vercel.app)  
-**Repository:** [github.com/hoasine/gencomply](https://github.com/hoasine/gencomply)  
-**Contract (Studionet):** `0xe70D3DE9770ac9Ba08Fc7D5D6fEc532C515879b0`  
-**Author:** Hoa Tran Rom ([@hoasine](https://github.com/hoasine)) · [X](https://x.com/HoaTranRom)
+Intelligent contracts crawl live policy pages, store verifiable compliance fingerprints on-chain, and pay auditors when AI confirms a violation.
 
----
-
-## Submission Title
-
-**GenComply — Decentralized Policy Registry & AI Compliance Bounty System on GenLayer**
+| | |
+|---|---|
+| **Live demo** | [gencomply.vercel.app](https://gencomply.vercel.app) |
+| **Contract** | `0xe70D3DE9770ac9Ba08Fc7D5D6fEc532C515879b0` (Studionet) |
+| **Author** | Hoa Tran Rom · [@hoasine](https://github.com/hoasine) · [X](https://x.com/HoaTranRom) |
 
 ---
 
-## Project Introduction
+## About
 
-*GenLayer submission — max ~1000 characters.*
+Companies publish privacy policies, cookie notices, and GDPR statements — but those commitments are rarely enforced in a transparent, auditable way.
 
-GenComply turns web compliance into an on-chain workflow on GenLayer. Companies register a canonical policy URL (privacy, cookies, GDPR). The contract crawls the page with `gl.nondet.web.render` and uses `gl.nondet.exec_prompt` to build an AI compliance fingerprint stored on Studionet. Stakeholders fund a GEN bounty pool; auditors report suspect URLs. The contract re-crawls evidence, runs an AI jury under the equivalence principle, and pays confirmed reporters from escrow (~20% of pool). Built with Python intelligent contracts and a Next.js dApp (MetaMask, Studionet). Live: [gencomply.vercel.app](https://gencomply.vercel.app) · GitHub: [github.com/hoasine/gencomply](https://github.com/hoasine/gencomply) · Contract: `0xe70D3DE9770ac9Ba08Fc7D5D6fEc532C515879b0`. Not legal advice — a transparent on-chain audit rubric. By Hoa Tran Rom ([@hoasine](https://github.com/hoasine)).
+**GenComply** turns web compliance into an on-chain workflow:
+
+1. **Register** — A company submits a canonical policy URL. The contract crawls the page with `gl.nondet.web.render` and builds an AI compliance fingerprint via `gl.nondet.exec_prompt`.
+2. **Fund** — Stakeholders escrow GEN into a bounty pool tied to that policy.
+3. **Report** — Auditors submit suspect URLs where behavior may contradict registered commitments.
+4. **Verdict** — The contract re-crawls evidence, runs an AI jury under the equivalence principle, and pays confirmed reporters from the pool (~20% per violation).
+
+Every crawl, verdict, and payout is recorded on Studionet. GenComply is an on-chain audit rubric — not legal advice or a substitute for regulators.
 
 ---
 
@@ -74,7 +78,7 @@ Typical `register_work` transactions take **5–15 minutes** on Studionet (web c
 
 ## Frontend
 
-A **light-theme Next.js 16** dApp with a compliance-focused layout (sidebar navigation, policy vault table, dashboard pipeline):
+Light-theme **Next.js 16** dApp with sidebar navigation, policy vault table, and compliance dashboard:
 
 - **Dashboard** — on-chain stats and audit pipeline overview
 - **Submit policy** — register canonical URLs (must be public HTTP 200)
@@ -104,10 +108,10 @@ A **light-theme Next.js 16** dApp with a compliance-focused layout (sidebar navi
 ```
 gencomply/
 ├── contracts/gencomply.py    # Intelligent contract (Python)
-├── frontend/                   # Next.js dApp
-├── deploy/                     # Deployment scripts
-├── tests/direct/               # Contract tests
-└── docs/                       # Guides (VN + deployment)
+├── frontend/                 # Next.js dApp
+├── deploy/                   # Deployment scripts
+├── tests/direct/             # Contract tests
+└── docs/                     # Guides
 ```
 
 ---
@@ -151,7 +155,7 @@ Use a **real, publicly reachable URL** (must return HTTP 200):
 ["https://policies.google.com/privacy"]
 ```
 
-> **Note:** `https://example.com/privacy` returns 404 and will fail with `WEBPAGE_LOAD_FAILED`. Always verify the URL in a browser first.
+> `https://example.com/privacy` returns 404 and will fail with `WEBPAGE_LOAD_FAILED`. Verify the URL in a browser first.
 
 Wait for the transaction to reach **FINALIZED** in Studio (5–15 min), then open **Policy vault** in the dApp.
 
