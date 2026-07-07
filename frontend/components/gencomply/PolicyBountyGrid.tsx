@@ -26,6 +26,11 @@ import type { ComplySection } from "./ComplianceSidebar";
 
 type SortMode = "latest" | "funded" | "unfunded";
 type TypeFilter = "all" | string;
+const SORT_TABS: ReadonlyArray<{ id: SortMode; label: string }> = [
+  { id: "latest", label: "Latest" },
+  { id: "funded", label: "Funded" },
+  { id: "unfunded", label: "Needs funding" },
+];
 
 const TYPE_ICONS: Record<string, typeof Shield> = {
   privacy_policy: Shield,
@@ -155,14 +160,17 @@ export function PolicyBountyGrid({
 
   const filtered = useMemo(() => {
     let list = [...works];
+
     if (typeFilter !== "all") {
       list = list.filter((w) => w.work_type === typeFilter);
     }
+
     if (sort === "funded") {
       list = list.filter((w) => w.bounty_pool > 0);
     } else if (sort === "unfunded") {
       list = list.filter((w) => w.bounty_pool === 0);
     }
+
     return list.reverse();
   }, [works, sort, typeFilter]);
 
@@ -177,13 +185,7 @@ export function PolicyBountyGrid({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {(
-            [
-              { id: "latest" as const, label: "Latest" },
-              { id: "funded" as const, label: "Funded" },
-              { id: "unfunded" as const, label: "Needs funding" },
-            ] as const
-          ).map((tab) => (
+          {SORT_TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"

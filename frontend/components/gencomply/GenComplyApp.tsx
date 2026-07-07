@@ -17,6 +17,38 @@ import { ReportForm } from "@/components/gencomply/ReportForm";
 import { PolicyVault } from "@/components/gencomply/PolicyVault";
 import { useWorksList } from "@/lib/hooks/useGenComply";
 
+const SECTION_COPY = {
+  submit: {
+    title: "Submit policy",
+    description:
+      "Register a public policy URL — the contract builds an on-chain fingerprint.",
+  },
+  escrow: {
+    title: "Escrow GEN",
+    description: "Pick a policy card and lock tokens into the reward pool.",
+  },
+  whistle: {
+    title: "Whistleblow",
+    description:
+      "Flag a URL that appears to violate a registered policy commitment.",
+  },
+} as const;
+
+function SectionIntro({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold font-display">{title}</h1>
+      <p className="text-sm text-muted-foreground mt-1">{description}</p>
+    </div>
+  );
+}
+
 export function GenComplyApp() {
   const [section, setSection] = useState<ComplySection>("dashboard");
   const [selectedFundId, setSelectedFundId] = useState("");
@@ -50,22 +82,20 @@ export function GenComplyApp() {
 
           {section === "dashboard" && (
             <HomeHub
-                selectedFundId={selectedFundId}
-                onSelectFund={setSelectedFundId}
-                onFund={(id) => setSelectedFundId(id)}
-                onReport={goReport}
+              selectedFundId={selectedFundId}
+              onSelectFund={setSelectedFundId}
+              onFund={setSelectedFundId}
+              onReport={goReport}
               onNavigate={setSection}
             />
           )}
 
           {section === "submit-policy" && (
             <div className="animate-fade-in space-y-4 max-w-5xl">
-              <div>
-                <h1 className="text-2xl font-bold font-display">Submit policy</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Register a public policy URL — the contract builds an on-chain fingerprint.
-                </p>
-              </div>
+              <SectionIntro
+                title={SECTION_COPY.submit.title}
+                description={SECTION_COPY.submit.description}
+              />
               <div className="grid lg:grid-cols-5 gap-6 items-start">
                 <div className="lg:col-span-3">
                   <RegisterWorkForm onSuccess={() => setSection("vault")} />
@@ -79,12 +109,10 @@ export function GenComplyApp() {
 
           {section === "escrow" && (
             <div className="animate-fade-in space-y-6 max-w-7xl">
-              <div>
-                <h1 className="text-2xl font-bold font-display">Escrow GEN</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Pick a policy card and lock tokens into the reward pool.
-                </p>
-              </div>
+              <SectionIntro
+                title={SECTION_COPY.escrow.title}
+                description={SECTION_COPY.escrow.description}
+              />
               <PolicyBountyGrid
                 selectedId={selectedFundId}
                 onSelect={setSelectedFundId}
@@ -101,12 +129,10 @@ export function GenComplyApp() {
 
           {section === "whistleblow" && (
             <div className="animate-fade-in space-y-4 max-w-5xl">
-              <div>
-                <h1 className="text-2xl font-bold font-display">Whistleblow</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Flag a URL that appears to violate a registered policy commitment.
-                </p>
-              </div>
+              <SectionIntro
+                title={SECTION_COPY.whistle.title}
+                description={SECTION_COPY.whistle.description}
+              />
               <div className="grid lg:grid-cols-5 gap-6 items-start">
                 <div className="lg:col-span-3">
                   <ReportForm

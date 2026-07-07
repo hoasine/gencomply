@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Brain, Globe, Scale, Wallet } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContractConfig, useWorksList } from "@/lib/hooks/useGenComply";
 import { PolicyBountyGrid } from "./PolicyBountyGrid";
@@ -10,22 +10,18 @@ import type { ComplySection } from "./ComplianceSidebar";
 
 const PIPELINE = [
   {
-    icon: Globe,
     title: "Crawl policy URL",
     desc: "web.render extracts privacy, cookie, and GDPR text.",
   },
   {
-    icon: Wallet,
     title: "Escrow reward pool",
     desc: "Lock GEN so auditors investigate violations.",
   },
   {
-    icon: Scale,
     title: "Whistleblow URL",
     desc: "Report pages that contradict commitments.",
   },
   {
-    icon: Brain,
     title: "AI jury verdict",
     desc: "exec_prompt + automatic payout on confirmation.",
   },
