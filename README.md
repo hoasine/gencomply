@@ -1,141 +1,98 @@
 # GenComply
 
-**Decentralized policy registry & AI compliance bounty system on [GenLayer](https://www.genlayer.com/)**
+<div align="center">
 
-Intelligent contracts crawl live policy pages, store verifiable compliance fingerprints on-chain, and pay auditors when AI confirms a violation.
+## Decentralized Policy Registry and AI Compliance Bounties
 
-| | |
-|---|---|
-| **Live demo** | [gencomply.vercel.app](https://gencomply.vercel.app) |
-| **Contract** | `0xe70D3DE9770ac9Ba08Fc7D5D6fEc532C515879b0` (Studionet) |
-| **Author** | Hoa Tran Rom · [@hoasine](https://github.com/hoasine) · [X](https://x.com/HoaTranRom) |
+| **GenComply Platform** |
+|---|
+| **Register policy commitments on-chain. Fund bounties. Reward verified compliance reports.** |
 
----
+[![Live App](https://img.shields.io/badge/Live-gencomply.vercel.app-0f172a?style=for-the-badge&logo=vercel)](https://gencomply.vercel.app)
+[![Contract](https://img.shields.io/badge/Contract-GenLayer_Python-1f6feb?style=for-the-badge)](#core-contract-api)
+[![Frontend](https://img.shields.io/badge/Frontend-Next.js_+_TypeScript-111827?style=for-the-badge)](#project-structure)
+[![Network](https://img.shields.io/badge/Network-GenLayer_Studionet-16a34a?style=for-the-badge)](#environment-variables)
 
-## About
-
-Companies publish privacy policies, cookie notices, and GDPR statements — but those commitments are rarely enforced in a transparent, auditable way.
-
-**GenComply** turns web compliance into an on-chain workflow:
-
-1. **Register** — A company submits a canonical policy URL. The contract crawls the page with `gl.nondet.web.render` and builds an AI compliance fingerprint via `gl.nondet.exec_prompt`.
-2. **Fund** — Stakeholders escrow GEN into a bounty pool tied to that policy.
-3. **Report** — Auditors submit suspect URLs where behavior may contradict registered commitments.
-4. **Verdict** — The contract re-crawls evidence, runs an AI jury under the equivalence principle, and pays confirmed reporters from the pool (~20% per violation).
-
-Every crawl, verdict, and payout is recorded on Studionet. GenComply is an on-chain audit rubric — not legal advice or a substitute for regulators.
+</div>
 
 ---
 
-## Why GenLayer?
+## Overview
 
-GenComply is only possible on a chain where contracts can access the internet and reason with AI:
+GenComply transforms policy compliance into an on-chain, auditable workflow.
 
-| GenLayer capability | How GenComply uses it |
-|----------------------|------------------------|
-| `gl.nondet.web.render` | Crawl canonical policy pages and suspect URLs at registration & report time |
-| `gl.nondet.exec_prompt` | Extract compliance fingerprints; run AI jury on infringement evidence |
-| Equivalence principle | `strict_eq` for crawled text; comparative validators for LLM JSON verdicts |
-| Payable writes | Companies escrow GEN; confirmed reports trigger automatic payouts |
-| Python intelligent contracts | Natural fit for multi-step AI + web pipelines |
+Organizations register canonical policy URLs (privacy, cookie, data-processing, terms). The contract crawls live content and stores an AI-generated compliance fingerprint.  
+Auditors submit suspect URLs that may contradict those commitments. An AI jury evaluates the evidence, and confirmed reports can receive payouts from the bounty pool.
 
-Typical `register_work` transactions take **5–15 minutes** on Studionet (web crawl + AI consensus). `report_infringement` follows the same pattern.
+Everything (registration, evidence crawl, verdict, payout) is traceable on GenLayer Studionet.
 
----
+## Core Value Proposition
 
-## Key Features
+- **Verifiable commitments:** policy claims anchored on-chain
+- **Incentivized auditing:** bounty pools reward valid whistleblowing
+- **AI-native verification:** web crawl + model-based reasoning inside contract flow
+- **Transparent enforcement:** deterministic state + on-chain history
 
-### For policy owners (companies / DPOs)
-- Register privacy policies, terms of service, cookie policies, GDPR notices, and data-processing pages
-- AI generates an on-chain **fingerprint summary** from live page content
-- Fund a **bounty pool** in GEN to incentivize independent audits
+## Protocol Flow
 
-### For auditors & whistleblowers
-- Submit suspect URLs that may violate registered commitments
-- AI jury compares on-chain fingerprint vs. crawled suspect content
-- Earn **~20% of the bounty pool** per confirmed violation (configurable on-chain)
+1. **Register (`register_work`)**  
+   Submit canonical policy URL(s). Contract crawls pages and stores AI fingerprint.
+2. **Fund (`fund_bounty`)**  
+   Stakeholders escrow GEN into a bounty pool for that policy.
+3. **Report (`report_infringement`)**  
+   Auditors submit suspect URL(s) with evidence.
+4. **Verdict and payout**  
+   AI jury compares commitments vs suspect content; confirmed reports can trigger payout.
 
-### For the ecosystem
-- Full audit trail: every policy, report, verdict, and payout is readable on-chain
-- URL deduplication prevents spam reports on the same suspect page
-- Confidence thresholds gate payouts (default 75%)
+## Why GenLayer
 
----
+| GenLayer capability | GenComply usage |
+|----------------------|-----------------|
+| `gl.nondet.web.render` | Crawl canonical and suspect pages at decision time |
+| `gl.nondet.exec_prompt` | Build policy fingerprint and run report jury |
+| Equivalence principle | Validate non-deterministic AI outputs across validators |
+| Payable writes | Escrow bounty pools and programmatic rewards |
+| Python intelligent contracts | Native fit for multi-step AI + web workflows |
 
-## Contract API
+Typical `register_work` and `report_infringement` transactions can take 5-15 minutes on Studionet because they include web crawl and AI consensus.
+
+## Core Contract API
 
 | Method | Type | Description |
 |--------|------|-------------|
-| `register_work` | write | Crawl policy URL(s), AI fingerprint, store on-chain |
-| `fund_bounty` | write (payable) | Add GEN to a policy's bounty pool |
-| `report_infringement` | write | Crawl suspect URL, AI jury, optional payout |
-| `get_work` | view | Read policy details & fingerprint |
-| `get_report` | view | Read report verdict & evidence summary |
-| `list_work_ids` | view | List all registered policies |
-| `get_config` | view | Global stats (work count, report count, defaults) |
-
----
+| `register_work` | write | Crawl policy URL(s), build AI fingerprint, store on-chain |
+| `fund_bounty` | write (payable) | Add GEN to a work's bounty pool |
+| `report_infringement` | write | Crawl suspect URL, run AI jury, optional payout |
+| `get_work` | view | Read registered policy and fingerprint |
+| `get_report` | view | Read report verdict and evidence summary |
+| `list_work_ids` | view | List all registered policy IDs |
+| `get_config` | view | Global counters and default settings |
 
 ## Frontend
 
-Light-theme **Next.js 16** dApp with sidebar navigation, policy vault table, and compliance dashboard:
+Next.js 16 dApp with:
 
-- **Dashboard** — on-chain stats and audit pipeline overview
-- **Submit policy** — register canonical URLs (must be public HTTP 200)
-- **Escrow GEN** — fund bounty pools
-- **Whistleblow** — file violation reports against registered policies
-- **Policy vault** — expandable table of all on-chain policies
+- **Dashboard** for registry and bounty visibility
+- **Submit policy** flow for canonical URLs
+- **Escrow GEN** interactions
+- **Whistleblow/report** flow for suspect URLs
+- **Policy vault** for searchable on-chain records
 
-**Stack:** Next.js 16, React 19, TypeScript, Tailwind CSS, TanStack Query, MetaMask, genlayer-js, Wagmi/Viem.
+Stack: Next.js 16, React 19, TypeScript, Tailwind CSS, TanStack Query, MetaMask, genlayer-js, Wagmi/Viem.
 
----
+## Project Structure
 
-## Architecture
-
-```
-┌─────────────────┐     MetaMask      ┌──────────────────────┐
-│  Next.js dApp   │ ◄──────────────► │  GenLayer Studionet  │
-│  (Vercel)       │   write / read   │  GenComply contract  │
-└─────────────────┘                  └──────────┬───────────┘
-                                                │
-                          ┌─────────────────────┼─────────────────────┐
-                          ▼                     ▼                     ▼
-                   web.render              exec_prompt           GEN payouts
-                   (policy +              (fingerprint +         (bounty
-                    suspect URLs)           AI jury)               escrow)
+```text
+contracts/gencomply.py   # Intelligent contract
+frontend/                # Next.js dApp
+deploy/                  # Deployment scripts
+tests/direct/            # Contract tests
+docs/                    # Deployment/dev guides
 ```
 
-```
-gencomply/
-├── contracts/gencomply.py    # Intelligent contract (Python)
-├── frontend/                 # Next.js dApp
-├── deploy/                   # Deployment scripts
-├── tests/direct/             # Contract tests
-└── docs/                     # Guides
-```
+## Environment Variables
 
----
-
-## Quick Start
-
-### 1. Run the frontend locally
-
-```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-Open http://localhost:3000
-
-### 2. Deploy your own contract (recommended)
-
-Each deployment needs its **own contract address**:
-
-1. Go to [GenLayer Studio](https://studio.genlayer.com) → connect MetaMask on **Studionet (61999)**
-2. Create a new contract → paste `contracts/gencomply.py`
-3. Deploy → copy the `0x...` address into `frontend/.env`:
+Set these in `frontend/.env` (see `frontend/.env.example`):
 
 ```env
 NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
@@ -145,52 +102,39 @@ NEXT_PUBLIC_GENLAYER_CHAIN_NAME=GenLayer Studionet
 NEXT_PUBLIC_GENLAYER_SYMBOL=GEN
 ```
 
-4. Restart the dev server
+## Quick Start
 
-### 3. Register a test policy
-
-Use a **real, publicly reachable URL** (must return HTTP 200):
-
-```json
-["https://policies.google.com/privacy"]
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-> `https://example.com/privacy` returns 404 and will fail with `WEBPAGE_LOAD_FAILED`. Verify the URL in a browser first.
+Open `http://localhost:3000`.
 
-Wait for the transaction to reach **FINALIZED** in Studio (5–15 min), then open **Policy vault** in the dApp.
-
----
+Deploy contract first, then update `NEXT_PUBLIC_CONTRACT_ADDRESS`.
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
 | `cd frontend && npm run dev` | Run UI locally |
-| `cd frontend && npm run build` | Production build |
+| `cd frontend && npm run build` | Build production UI |
 | `npm run deploy` | Deploy contract via GenLayer CLI |
-| `pytest tests/direct/test_gencomply.py -v` | Contract tests |
+| `pytest tests/direct/test_gencomply.py -v` | Run direct contract tests |
 
----
+## Links
 
-## Deployment
-
-| Environment | URL |
-|-------------|-----|
-| Production (Vercel) | https://gencomply.vercel.app |
-| GenLayer Studio | https://studio.genlayer.com |
-| GitHub | https://github.com/hoasine/gencomply |
-
-See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for Vercel environment variables.
-
-See [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) and [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) for setup and commit guidelines.
-
----
+- Live app: [https://gencomply.vercel.app](https://gencomply.vercel.app)
+- GitHub: [https://github.com/hoasine/gencomply](https://github.com/hoasine/gencomply)
+- GenLayer Studio: [https://studio.genlayer.com](https://studio.genlayer.com)
+- Deployment guide: [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
 
 ## Legal Disclaimer
 
-GenComply provides an **AI on-chain rubric** for transparency and incentives. It does **not** constitute legal advice, regulatory certification, or a substitute for qualified counsel or government oversight.
-
----
+GenComply is an AI-assisted on-chain compliance rubric for transparency and incentives.  
+It is not legal advice, regulatory certification, or a substitute for professional counsel and official oversight.
 
 ## License
 
